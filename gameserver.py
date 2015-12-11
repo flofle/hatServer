@@ -1,82 +1,86 @@
-# coding: utf-8
-import pyjsonrpc
+# -*- coding: utf-8 -*-
+import os
 import random
+import json
+import logging
 
-class Room:
-    def __init__(self,ownerid, id = 0 ):
-        if id == 0:
-            self.id = random.randint(0,100)
+dbgMode = int()
+dbgLogName = str()
+
+
+
+
+class hServLexicProcessor:
+    def __init__(self, jstr = 0, logClass = 0):
+        self.logmsg = logging.getLogger( dbgLogName )
+        self.logmsg.setLevel(dbgMode)
+        self.logfil = logging.FileHandler(dbgLogName+'.log')
+        self.logfil.setlevel(logging.DEBUG)
+        self.logcon = logging.StreamHandler()
+        self.logfil.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        self.logcon.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
+
+        if jstr is 0:
+
         else:
-            self.id = id
-        self.ownerid = ownerid
-        return self.id
-
-class Rooms:
-    def __init__(self):
-        self.RoomContainer = []
-    def addRoom(self, ownerid):
-        self.RoomContainer.append(Room(ownerid))
+            if type( jstr ) is str:
+                self.procString( jstr )
+            else:
+                print("It is not string")
 
 
-class HatServer:
+    def procString(self, prStr):
+        self.deString   = json.loads( prStr )
+        self.deLen      = len( self.deString )
 
-    class RequestHandler(pyjsonrpc.HttpRequestHandler):
+        if self.deLen is 0:
+            print("String len is Zero")
+            return
 
-        roomContainer = Rooms
+        if self.deString[0] == 'WannaBeServer':
+            self.procAddNew( self.deString[1] )
 
-        @pyjsonrpc.rpcmethod
-        def addRoom(self, ownid):
-            self.on_append(ownid)
-            return "OK"
-
-        @pyjsonrpc.rpcmethod
-        def register(self, ownid, roomid):
-            self.on_register(ownid, roomid)
-            return "OK"
-
-        def on_register(self, cliid, room):
-            return 0
-
-        def on_append(self,ownid):
-            self.roomContainer.addRoom(ownid)
-            return 0
+        if self.deString[0] == 'WannaBeCli':
+            self.procConnectExist( self.deString[ 1 ] )
 
 
-    def __init__(self, startport, starthost):
-        print("Starting Server with port: "+str(startport)+". On host:"+starthost+".")
-        http_server = pyjsonrpc.ThreadingHttpServer(
-            server_address=(starthost,startport),
-            RequestHandlerClass = self.RequestHandler
-        )
-        print("Starting http server")
-        try:
-            http_server.serve_forever()
-        except KeyboardInterrupt:
-            http_server.shutdown()
-        print("Stoping server")
+    def procAddNew(self, params):
+        print("Wanna Create :\t " + str( params['RoomName'] ))
+
+    def procConnectExist(self, params ):
+        print("Wanna Connect :\t "+ str( params['RoomName'] ))
+
+
+    def stuff(self):
+
+        alphaCh = json.loads(teststr)
+        alphaLen = len(alphaCh)
+        if alphaLen is 0:
+            print("That's bad, coz len is:\tZERO")
+        else:
+            print("That's good, coz len is:\t"+str(alphaLen))
+
+        alphaLen = 0
+        if alphaLen is 0:
+            print("That's bad, coz len is:\tZERO")
+        else:
+            print("That's good, coz len is:\t"+str(alphaLen))
+
+    def logAdd(self,msg,dbgLvl=logging.DEBUG):
+        self.logfil.
+
+
+def current_test():
+    teststr = json.dumps(["WannaBeServer", {'RoomName':('PenisDominator')}])
+    hello = hServLexicProcessor(teststr)
+    teststr = json.dumps(["WannaBeCli", {'RoomName':('PenisDominator')}])
+    goodbye = hServLexicProcessor(teststr)
 
 
 
 if __name__ == "__main__":
-    PORT = 8005
-    HOST = "0.0.0.0"
-    try:
-        import argparse
-
-        arparser = argparse.ArgumentParser(description='Game server for hats')
-        arparser.add_argument('-p', '--p', type=int, dest='PORT',
-                              help='the port to run the server on; defaults to 8003')
-        arparser.add_argument('-s', '--s', type=int, dest='HOST',
-                              help='the host to run the server on; defaults to anyhost')
-
-        args= arparser.parse_args()
-
-        if args.PORT:
-            PORT = args.PORT
-        if args.HOST:
-            HOST = args.HOST
-    except:
-        # Could not successfully import argparse or something
-        pass
-
-    hServer = HatServer(PORT,HOST)
+    dbgMode = logging.DEBUG
+    dbgLogName = 'hatLog'
+    print("_MBegin HatServer Module")
+    current_test()
+    print("_MEnd HatServer Module")
